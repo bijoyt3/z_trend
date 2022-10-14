@@ -1,5 +1,5 @@
 import streamlit as st
-import boto3
+# import boto3
 import sqlite3
 import pandas as pd
 import os
