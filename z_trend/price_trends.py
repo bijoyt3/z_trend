@@ -88,12 +88,12 @@ date_list = [d.strftime('%m/%d/%y') for d in apt_.LastUpdated.tolist()]
 nat_mort_rate = [5.78, 5.81, 5.70, 5.30, 5.51, 5.54, 5.30, 4.99, 5.22, 5.13, 5.55,
                  5.66, 5.89, 6.02, 6.29, 6.70, 6.66, 6.92]
 
-ten_yr = pd.read_excel('10yr_rates.xlsx', parse_dates=['Date'])
+ten_yr = pd.read_excel('excel/10yr_rates.xlsx', parse_dates=['Date'])
 ten_yr_ = ten_yr.resample('W', on='Date')\
     .agg({'Rate': 'mean'})\
     .reset_index()
 
-ff = pd.read_excel('FF.xlsx', parse_dates=['Date'])
+ff = pd.read_excel('excel/FF.xlsx', parse_dates=['Date'])
 ff_ = ff.resample('W', on='Date')\
     .agg({'Fed_Rate': 'mean'})\
     .reset_index()
