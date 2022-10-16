@@ -81,7 +81,7 @@ with st.sidebar:
 
     """)
 st.info("Data is Updated **DAILY** || Metrics are Aggregated **WEEKLY**")
-os.chdir('/Users/bijoythomas/PycharmProjects/zillow_pricetrends/z_trend')
+# os.chdir('/Users/bijoythomas/PycharmProjects/zillow_pricetrends/z_trend')
 
 
 date_list = [d.strftime('%m/%d/%y') for d in apt_.LastUpdated.tolist()]
