@@ -40,10 +40,10 @@ s3_client = boto3.client(service_name='s3',
                          aws_access_key_id=st.secrets['AWS_CREDS']['aws_access_key_id'],
                          aws_secret_access_key=st.secrets['AWS_CREDS']['aws_secret_access_key'])
 
-s3_client.download_file('listingszillow2022', 'listings_master.db', 'db/listings_master.db')
+s3_client.download_file('listingszillow2022', 'listings_master.db', 'listings_master.db')
 
 db = 'listings_master.db'
-conn = sqlite3.connect(os.path.join('db', db))
+conn = sqlite3.connect(db)
 
 master = pd.read_sql('select * from "{}"'.format(db), conn)
 master['LastUpdated'] = pd.to_datetime(master['LastUpdated'])
