@@ -80,6 +80,7 @@ with st.sidebar:
 
     """)
 st.info("Data Last Updated: {}".format(max(th_.LastUpdated)))
+st.dataframe(th_)
 
 date_list = [d.strftime('%m/%d/%y') for d in apt_.LastUpdated.tolist()]
 nat_mort_rate = [5.78, 5.81, 5.70, 5.30, 5.51, 5.54, 5.30, 4.99, 5.22, 5.13, 5.55,
