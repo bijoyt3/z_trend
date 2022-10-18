@@ -34,7 +34,6 @@ def resample(df: pd.DataFrame, name: str):
 
 start = time.time()
 
-# secrets = toml.load('/Users/bijoythomas/PycharmProjects/zillow_pricetrends/z_trend/secrets.toml')
 s3_client = boto3.client(service_name='s3',
                          region_name=st.secrets['AWS_CREDS']['aws_region'],
                          aws_access_key_id=st.secrets['AWS_CREDS']['aws_access_key_id'],
@@ -80,9 +79,7 @@ with st.sidebar:
     This data is refreshed daily but aggregated weekly to illustrate macro trends in the market. The data goes back to mid June 2022.
 
     """)
-st.info("Data is Updated **DAILY** || Metrics are Aggregated **WEEKLY**")
-# os.chdir('/Users/bijoythomas/PycharmProjects/zillow_pricetrends/z_trend')
-
+st.info("Data Last Updated: {}".format(master.LastUpdated.head(1)[0]), icon="ℹ️")
 
 date_list = [d.strftime('%m/%d/%y') for d in apt_.LastUpdated.tolist()]
 nat_mort_rate = [5.78, 5.81, 5.70, 5.30, 5.51, 5.54, 5.30, 4.99, 5.22, 5.13, 5.55,
