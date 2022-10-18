@@ -79,7 +79,7 @@ with st.sidebar:
     This data is refreshed daily but aggregated weekly to illustrate macro trends in the market. The data goes back to mid June 2022.
 
     """)
-st.write(master.LastUpdated.head(1))
+st.write(master.LastUpdated.head(1)[0])
 st.info("Data Last Updated: {}".format(master.LastUpdated.head(1)[0]))
 
 
