@@ -77,11 +77,9 @@ with st.sidebar:
     
     Rate data comes from the St. Louis Fed: https://fred.stlouisfed.org/
     
-    30 Year Mortage Rate: https://fred.stlouisfed.org/series/MORTGAGE30US
-    
-    10 Year Treasury Yield: https://fred.stlouisfed.org/series/DGS10
-    
-    Federal Funds Rate: https://fred.stlouisfed.org/series/FEDFUNDS
+    + 30 Year Mortage Rate: https://fred.stlouisfed.org/series/MORTGAGE30US
+    + 10 Year Treasury Yield: https://fred.stlouisfed.org/series/DGS10
+    + Federal Funds Rate: https://fred.stlouisfed.org/series/FEDFUNDS
     
     This data is refreshed daily but aggregated weekly to illustrate macro trends in the market. The data goes back to mid June 2022.
 
