@@ -71,10 +71,15 @@ with st.sidebar:
 
 
     ## Data:
-
-    The underlying dataset is a daily scrape of homes for sale on Zillow in about 100 zipcodes of Loudoun County and Fairfax County. 
-    It's important to note that the key metric that is being observed here is **LIST PRICE**.
-    Other listing attributes such as Days on Market and Sales Price were considered.
+    Housing data comes from Zillow - the underlying dataset is a daily scrape of homes for sale on Zillow in 
+    116 zipcodes of Loudoun County and Fairfax County. It's important to note that the key metric that is being
+    observed here is **LIST PRICE**. Other listing attributes such as Days on Market and Sales Price were considered.
+    
+    Rate data comes from the St. Louis Fed: https://fred.stlouisfed.org/
+    
+    30 Year Mortage Rate: https://fred.stlouisfed.org/series/MORTGAGE30US
+    10 Year Treasury Yield: https://fred.stlouisfed.org/series/DGS10
+    Federal Funds Rate: https://fred.stlouisfed.org/series/FEDFUNDS
     
     This data is refreshed daily but aggregated weekly to illustrate macro trends in the market. The data goes back to mid June 2022.
 
