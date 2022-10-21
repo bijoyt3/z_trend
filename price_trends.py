@@ -89,7 +89,7 @@ st.info("Data Last Updated: {}".format(max(th.LastUpdated).strftime('%m/%d/%y'))
 
 date_list = [d.strftime('%m/%d/%y') for d in apt_.LastUpdated.tolist()]
 nat_mort_rate = [5.78, 5.81, 5.70, 5.30, 5.51, 5.54, 5.30, 4.99, 5.22, 5.13, 5.55,
-                 5.66, 5.89, 6.02, 6.29, 6.70, 6.66, 6.92]
+                 5.66, 5.89, 6.02, 6.29, 6.70, 6.66, 6.92, 6.94]
 
 ten_yr = pd.read_excel('10yr_rates.xlsx', parse_dates=['Date'])
 ten_yr_ = ten_yr.resample('W', on='Date')\
