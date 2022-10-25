@@ -6,3 +6,4 @@ streamlit==1.13.0
 streamlit_echarts==0.4.0
 toml==0.10.2
 openpyxl==3.0.10
+fredapi==0.5.0
