@@ -115,6 +115,7 @@ with st.container() as metrics:
 
         st.write(last)
         st.write(first)
+        st.write(apt_)
     with b:
         pct_change, last, first = get_pct_change(cond_, 'COND_price')
         num = cond_.COND_price.iloc[-5] - cond_.COND_price.head(1).values[0]
@@ -125,6 +126,7 @@ with st.container() as metrics:
 
         st.write(last)
         st.write(first)
+        st.write(cond_)
     with c:
         pct_change, last, first = get_pct_change(th_, 'TH_price')
         num = th_.TH_price.iloc[-5] - th_.TH_price.head(1).values[0]
@@ -135,6 +137,7 @@ with st.container() as metrics:
 
         st.write(last)
         st.write(first)
+        st.write(th_)
     with d:
         pct_change, last, first = get_pct_change(sfh_, 'SFH_price')
         num = sfh_.SFH_price.iloc[-5] - sfh_.SFH_price.head(1).values[0]
@@ -145,6 +148,7 @@ with st.container() as metrics:
 
         st.write(last)
         st.write(first)
+        st.write(sfh_)
 
 with st.container() as charts:
     a, b = st.columns(2)
