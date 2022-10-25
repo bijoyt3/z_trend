@@ -15,7 +15,7 @@ def get_pct_change(df, col_name):
     numerator = df[col_name].tail(1).values[0] - df[col_name].head(1).values[0]
     denominator = df[col_name].head(1).values[0]
     change_ = np.round(((numerator / denominator) * 100), 2)
-    return change_, df[col_name].tail(1).values[0], df[col_name].head(1).values[0]
+    return change_
 
 
 def resample(df: pd.DataFrame, name: str):
@@ -105,7 +105,7 @@ ff_ = ff.resample('W', on='Date')\
 with st.container() as metrics:
     a, b, c, d = st.columns(4)
     with a:
-        pct_change, last, first = get_pct_change(apt_, 'APT_price')
+        pct_change = get_pct_change(apt_, 'APT_price')
         num = apt_.APT_price.iloc[-5] - apt_.APT_price.head(1).values[0]
         den = apt_.APT_price.head(1).values[0]
         mom = np.round(((num / den) * 100), 2)
@@ -113,42 +113,29 @@ with st.container() as metrics:
         st.metric(label='Apartment Price Change (%)', value="{:.2f}%".format(pct_change),
                   delta='{:.2f} % Points MoM'.format(pct_change - mom))
 
-        st.write(last)
-        st.write(first)
-        st.write(apt_)
     with b:
-        pct_change, last, first = get_pct_change(cond_, 'COND_price')
+        pct_change = get_pct_change(cond_, 'COND_price')
         num = cond_.COND_price.iloc[-5] - cond_.COND_price.head(1).values[0]
         den = cond_.COND_price.head(1).values[0]
         mom = np.round(((num / den) * 100), 2)
         st.metric(label='Condo Price Change (%)', value="{:.2f}%".format(pct_change),
                   delta='{:.2f} % Points MoM'.format(pct_change - mom))
 
-        st.write(last)
-        st.write(first)
-        st.write(cond_)
     with c:
-        pct_change, last, first = get_pct_change(th_, 'TH_price')
+        pct_change = get_pct_change(th_, 'TH_price')
         num = th_.TH_price.iloc[-5] - th_.TH_price.head(1).values[0]
         den = th_.TH_price.head(1).values[0]
         mom = np.round(((num / den) * 100), 2)
         st.metric(label='Townhouse Price Change (%)', value="{:.2f}%".format(pct_change),
                   delta='{:.2f} % Points MoM'.format(pct_change - mom))
 
-        st.write(last)
-        st.write(first)
-        st.write(th_)
     with d:
-        pct_change, last, first = get_pct_change(sfh_, 'SFH_price')
+        pct_change = get_pct_change(sfh_, 'SFH_price')
         num = sfh_.SFH_price.iloc[-5] - sfh_.SFH_price.head(1).values[0]
         den = sfh_.SFH_price.head(1).values[0]
         mom = np.round(((num / den) * 100), 2)
         st.metric(label='Single Family Home Price Change (%)', value="{:.2f}%".format(pct_change),
                   delta='{:.2f} % Points MoM'.format(pct_change - mom))
-
-        st.write(last)
-        st.write(first)
-        st.write(sfh_)
 
 with st.container() as charts:
     a, b = st.columns(2)
