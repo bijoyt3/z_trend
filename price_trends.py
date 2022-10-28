@@ -1,5 +1,3 @@
-import os
-import toml
 import streamlit as st
 import sqlite3
 import boto3
@@ -9,6 +7,7 @@ from pyecharts.charts import Line
 from streamlit_echarts import st_pyecharts
 import numpy as np
 import time
+import fredapi
 
 
 def get_pct_change(df, col_name):
@@ -24,6 +23,19 @@ def resample(df: pd.DataFrame, name: str):
         .astype(int) \
         .reset_index() \
         .rename(columns={'ListedPrice': '{}_price'.format(name), 'zpid': '{}_count'.format(name)})
+
+    return df_
+
+
+def resample_fred(series_id: str, sample: str, start: str):
+    df = fred.get_series(series_id=series_id, observation_start=start)
+    df_ = pd.DataFrame(df)\
+        .reset_index()\
+        .rename(columns={'index': 'Date', 0: 'Rate'})\
+        .resample(sample, on='Date')\
+        .agg({'Rate': 'mean'})\
+        .round(2)\
+        .reset_index()
 
     return df_
 
@@ -88,18 +100,26 @@ st.info("Data Last Updated: {}".format(max(th.LastUpdated).strftime('%m/%d/%y'))
 
 
 date_list = [d.strftime('%m/%d/%y') for d in th_.LastUpdated.tolist()]
-nat_mort_rate = [5.78, 5.81, 5.70, 5.30, 5.51, 5.54, 5.30, 4.99, 5.22, 5.13, 5.55,
-                 5.66, 5.89, 6.02, 6.29, 6.70, 6.66, 6.92, 6.94]
 
-ten_yr = pd.read_excel('10yr_rates.xlsx', parse_dates=['Date'])
-ten_yr_ = ten_yr.resample('W', on='Date')\
-    .agg({'Rate': 'mean'})\
-    .reset_index()
+fred_key = st.secrets['FRED_API_KEY']['key']
+fred = fredapi.Fred(api_key=fred_key)
 
-ff = pd.read_excel('FF.xlsx', parse_dates=['Date'])
-ff_ = ff.resample('W', on='Date')\
-    .agg({'Fed_Rate': 'mean'})\
-    .reset_index()
+treasury_resample = resample_fred(series_id='DGS10', sample='W', start='2022-06-12')
+fixedmortgage_resample = resample_fred(series_id='MORTGAGE30US', sample='W', start='2022-06-12')
+fedfunds_resample = resample_fred(series_id='FEDFUNDS', sample='M', start='2022-05-12')
+
+# nat_mort_rate = [5.78, 5.81, 5.70, 5.30, 5.51, 5.54, 5.30, 4.99, 5.22, 5.13, 5.55,
+#                  5.66, 5.89, 6.02, 6.29, 6.70, 6.66, 6.92, 6.94]
+#
+# ten_yr = pd.read_excel('10yr_rates.xlsx', parse_dates=['Date'])
+# ten_yr_ = ten_yr.resample('W', on='Date')\
+#     .agg({'Rate': 'mean'})\
+#     .reset_index()
+#
+# ff = pd.read_excel('FF.xlsx', parse_dates=['Date'])
+# ff_ = ff.resample('W', on='Date')\
+#     .agg({'Fed_Rate': 'mean'})\
+#     .reset_index()
 
 
 with st.container() as metrics:
@@ -145,7 +165,7 @@ with st.container() as charts:
                 .add_xaxis(date_list)
                 .add_yaxis("Apartments", apt_.APT_price.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
-                .add_yaxis("30Yr Mortgage Rate", nat_mort_rate, yaxis_index=1,
+                .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
                 .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
                 .set_global_opts(title_opts=opts.TitleOpts(title='Average List Price of Apartments'),
@@ -160,7 +180,7 @@ with st.container() as charts:
                 .add_xaxis(date_list)
                 .add_yaxis("Apartments", apt_.APT_count.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
-                .add_yaxis("30Yr Mortgage Rate", nat_mort_rate, yaxis_index=1,
+                .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
                 .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
                 .set_global_opts(title_opts=opts.TitleOpts(title='Count of Apartments'),
@@ -176,7 +196,7 @@ with st.container() as charts:
                 .add_xaxis(date_list)
                 .add_yaxis("Condos", cond_.COND_price.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
-                .add_yaxis("30Yr Mortgage Rate", nat_mort_rate, yaxis_index=1,
+                .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
                 .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
                 .set_global_opts(
@@ -193,7 +213,7 @@ with st.container() as charts:
                 .add_xaxis(date_list)
                 .add_yaxis("Condos", cond_.COND_count.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
-                .add_yaxis("30Yr Mortgage Rate", nat_mort_rate, yaxis_index=1,
+                .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
                 .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
                 .set_global_opts(
@@ -210,7 +230,7 @@ with st.container() as charts:
                 .add_xaxis(date_list)
                 .add_yaxis("Townhouses", th_.TH_price.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
-                .add_yaxis("30Yr Mortgage Rate", nat_mort_rate, yaxis_index=1,
+                .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
                 .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
                 .set_global_opts(
@@ -227,7 +247,7 @@ with st.container() as charts:
                 .add_xaxis(date_list)
                 .add_yaxis("Townhouses", th_.TH_count.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
-                .add_yaxis("30Yr Mortgage Rate", nat_mort_rate, yaxis_index=1,
+                .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
                 .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
                 .set_global_opts(
@@ -245,7 +265,7 @@ with st.container() as charts:
                 .add_xaxis(date_list)
                 .add_yaxis("Single Family", sfh_.SFH_price.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
-                .add_yaxis("30Yr Mortgage Rate", nat_mort_rate, yaxis_index=1,
+                .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
                 .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
                 .set_global_opts(
@@ -262,7 +282,7 @@ with st.container() as charts:
                 .add_xaxis(date_list)
                 .add_yaxis("Single Family", sfh_.SFH_count.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
-                .add_yaxis("30Yr Mortgage Rate", nat_mort_rate, yaxis_index=1,
+                .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
                 .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
                 .set_global_opts(
@@ -278,8 +298,8 @@ with st.container() as rate_container:
     with rate1:
         fed_funds = (
             Line(init_opts=opts.InitOpts())
-                .add_xaxis(date_list)
-                .add_yaxis("Federal Funds Rate", ff_.Fed_Rate.tolist(), linestyle_opts=opts.LineStyleOpts(width=2),
+                .add_xaxis(fedfunds_resample.Date.tolist())
+                .add_yaxis("Federal Funds Rate", fedfunds_resample.Rate.tolist(), linestyle_opts=opts.LineStyleOpts(width=2),
                            color='#367E18')
                 .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
                 .set_global_opts(
@@ -293,8 +313,8 @@ with st.container() as rate_container:
     with rate2:
         treasury = (
             Line(init_opts=opts.InitOpts())
-                .add_xaxis(date_list)
-                .add_yaxis("10 Year Treasury Yield", ten_yr_.Rate.tolist(), linestyle_opts=opts.LineStyleOpts(width=2),
+                .add_xaxis(treasury_resample.Date.tolist())
+                .add_yaxis("10 Year Treasury Yield", treasury_resample.Rate.tolist(), linestyle_opts=opts.LineStyleOpts(width=2),
                            color='#749F82')
                 .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
                 .set_global_opts(
@@ -309,8 +329,8 @@ with st.container() as rate_container:
     with rate3:
         thirty_year = (
             Line(init_opts=opts.InitOpts())
-                .add_xaxis(date_list)
-                .add_yaxis("30Yr Mortgage Rate", nat_mort_rate, linestyle_opts=opts.LineStyleOpts(width=2), color='#425F57')
+                .add_xaxis(fixedmortgage_resample.Date.tolist())
+                .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), linestyle_opts=opts.LineStyleOpts(width=2), color='#425F57')
                 .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
                 .set_global_opts(
                 title_opts=opts.TitleOpts(title='30 Yr Fixed Mortage Rate'),
