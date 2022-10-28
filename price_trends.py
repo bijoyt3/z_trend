@@ -108,7 +108,7 @@ with st.container() as metrics:
         # mom = apt['APT_price'].pct_change(periods=4).iloc[-1] * 100
 
         st.metric(label='Apartment Price Change (%)', value="{:.2f}%".format(pct_change),
-                  delta='{:.2f} % Points MoM'.format(pct_change - mom))
+                  delta='{:.2f} % Points MoM'.format(mom))
 
     with b:
         pct_change, mom = get_pct_change(cond, 'COND_price')
@@ -116,7 +116,7 @@ with st.container() as metrics:
         # den = cond.COND_price.head(1).values[0]
         # mom = np.round(((num / den) * 100), 2)
         st.metric(label='Condo Price Change (%)', value="{:.2f}%".format(pct_change),
-                  delta='{:.2f} % Points MoM'.format(pct_change - mom))
+                  delta='{:.2f} % Points MoM'.format(mom))
 
     with c:
         pct_change, mom = get_pct_change(th, 'TH_price')
@@ -125,7 +125,7 @@ with st.container() as metrics:
         # den = th.TH_price.head(1).values[0]
         # mom = np.round(((num / den) * 100), 2)
         st.metric(label='Townhouse Price Change (%)', value="{:.2f}%".format(pct_change),
-                  delta='{:.2f} % Points MoM'.format(pct_change - mom))
+                  delta='{:.2f} % Points MoM'.format(mom))
 
     with d:
         pct_change, mom = get_pct_change(sfh, 'SFH_price')
@@ -134,7 +134,7 @@ with st.container() as metrics:
         # den = sfh.SFH_price.head(1).values[0]
         # mom = np.round(((num / den) * 100), 2)
         st.metric(label='Single Family Home Price Change (%)', value="{:.2f}%".format(pct_change),
-                  delta='{:.2f} % Points MoM'.format(pct_change - mom))
+                  delta='{:.2f} % Points MoM'.format(mom))
 
 with st.container() as charts:
     a, b = st.columns(2)
