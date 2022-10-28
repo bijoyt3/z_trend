@@ -284,7 +284,7 @@ with st.container() as charts:
 with st.container() as rate_container:
     rate1, rate2, rate3 = st.columns(3)
     with rate1:
-        fed_date = [d.strftime('%m/%d/%y') for d in fedfunds_resample.Date.tolist()]
+        fed_date = [d.strftime('%b, %y') for d in fedfunds_resample.Date.tolist()]
         fed_funds = (
             Line(init_opts=opts.InitOpts())
                 .add_xaxis(fed_date)
