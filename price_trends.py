@@ -18,7 +18,7 @@ def get_pct_change(df, col_name):
 
 
 def resample(asset_type: str, abbrev: str):
-    filtered = master.query("HomeType == {}".format(asset_type))
+    filtered = master.query("HomeType == '{}'".format(asset_type))
     resampled = filtered.resample('W', on='LastUpdated')\
         .agg({'ListedPrice': 'mean', 'zpid': 'nunique'})\
         .astype(int)\
