@@ -5,7 +5,6 @@ import pandas as pd
 from pyecharts import options as opts
 from pyecharts.charts import Line
 from streamlit_echarts import st_pyecharts
-import numpy as np
 import time
 import fredapi
 
@@ -97,42 +96,25 @@ treasury_resample = resample_fred(series_id='DGS10', sample='W', start_dt='2022-
 fixedmortgage_resample = resample_fred(series_id='MORTGAGE30US', sample='W', start_dt='2022-06-12')
 fedfunds_resample = resample_fred(series_id='FEDFUNDS', sample='M', start_dt='2022-05-12')
 
-print(apt.APT_price.tolist())
-print(100 * (apt['APT_price'].iloc[-1]/apt['APT_price'].iloc[0]-1))
 with st.container() as metrics:
     a, b, c, d = st.columns(4)
     with a:
         pct_change, mom = get_pct_change(apt, 'APT_price')
-        # num = apt.APT_price.iloc[-5] - apt.APT_price.head(1).values[0]
-        # den = apt.APT_price.head(1).values[0]
-        # mom = apt['APT_price'].pct_change(periods=4).iloc[-1] * 100
-
         st.metric(label='Apartment Price Change (%)', value="{:.2f}%".format(pct_change),
                   delta='{:.2f} % Points MoM'.format(mom))
 
     with b:
         pct_change, mom = get_pct_change(cond, 'COND_price')
-        # num = cond.COND_price.iloc[-5] - cond.COND_price.head(1).values[0]
-        # den = cond.COND_price.head(1).values[0]
-        # mom = np.round(((num / den) * 100), 2)
         st.metric(label='Condo Price Change (%)', value="{:.2f}%".format(pct_change),
                   delta='{:.2f} % Points MoM'.format(mom))
 
     with c:
         pct_change, mom = get_pct_change(th, 'TH_price')
-        # mom = th['TH_price'].pct_change(periods=4).iloc[-1] * 100
-        # num = th.TH_price.iloc[-5] - th.TH_price.head(1).values[0]
-        # den = th.TH_price.head(1).values[0]
-        # mom = np.round(((num / den) * 100), 2)
         st.metric(label='Townhouse Price Change (%)', value="{:.2f}%".format(pct_change),
                   delta='{:.2f} % Points MoM'.format(mom))
 
     with d:
         pct_change, mom = get_pct_change(sfh, 'SFH_price')
-        # mom = sfh['SFH_price'].pct_change(periods=4).iloc[-1] * 100
-        # num = sfh.SFH_price.iloc[-5] - sfh.SFH_price.head(1).values[0]
-        # den = sfh.SFH_price.head(1).values[0]
-        # mom = np.round(((num / den) * 100), 2)
         st.metric(label='Single Family Home Price Change (%)', value="{:.2f}%".format(pct_change),
                   delta='{:.2f} % Points MoM'.format(mom))
 
