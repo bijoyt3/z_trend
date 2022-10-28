@@ -105,7 +105,7 @@ with st.sidebar:
     housing data began in mid-June 2022.
 
     """)
-st.info("Data Last Updated: {}".format(max(th.LastUpdated).strftime('%m/%d/%y')), icon="ℹ️")
+st.info("Data Last Updated: {}".format(max(master.LastUpdated).strftime('%m/%d/%y')), icon="ℹ️")
 
 
 date_list = [d.strftime('%m/%d/%y') for d in th.LastUpdated.tolist()]
