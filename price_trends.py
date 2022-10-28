@@ -64,16 +64,19 @@ master['LastUpdated'] = pd.to_datetime(master['LastUpdated'])
 master = master.sort_values(by='LastUpdated')
 
 apt = resample('APARTMENT', 'APT')
+cond = resample('CONDO', 'COND')
+th = resample('TOWNHOUSE', 'TH')
+sfh = resample('SINGLE_FAMILY', 'SFH')
 
 # apt = master.query("HomeType == 'APARTMENT'")
-cond = master.query("HomeType == 'CONDO'")
-th = master.query("HomeType == 'TOWNHOUSE'")
-sfh = master.query("HomeType == 'SINGLE_FAMILY'")
+# cond = master.query("HomeType == 'CONDO'")
+# th = master.query("HomeType == 'TOWNHOUSE'")
+# sfh = master.query("HomeType == 'SINGLE_FAMILY'")
 
 # apt_ = resample(apt, 'APT')
-cond_ = resample(cond, 'COND')
-th_ = resample(th, 'TH')
-sfh_ = resample(sfh, 'SFH')
+# cond_ = resample(cond, 'COND')
+# th_ = resample(th, 'TH')
+# sfh_ = resample(sfh, 'SFH')
 
 # Streamlit Page Starts Here
 st.set_page_config(layout='wide')
@@ -105,7 +108,7 @@ with st.sidebar:
 st.info("Data Last Updated: {}".format(max(th.LastUpdated).strftime('%m/%d/%y')), icon="ℹ️")
 
 
-date_list = [d.strftime('%m/%d/%y') for d in th_.LastUpdated.tolist()]
+date_list = [d.strftime('%m/%d/%y') for d in th.LastUpdated.tolist()]
 
 fred_key = st.secrets['FRED_API_KEY']['key']
 fred = fredapi.Fred(api_key=fred_key)
@@ -127,25 +130,25 @@ with st.container() as metrics:
                   delta='{:.2f} % Points MoM'.format(pct_change - mom))
 
     with b:
-        pct_change = get_pct_change(cond_, 'COND_price')
-        num = cond_.COND_price.iloc[-5] - cond_.COND_price.head(1).values[0]
-        den = cond_.COND_price.head(1).values[0]
+        pct_change = get_pct_change(cond, 'COND_price')
+        num = cond.COND_price.iloc[-5] - cond.COND_price.head(1).values[0]
+        den = cond.COND_price.head(1).values[0]
         mom = np.round(((num / den) * 100), 2)
         st.metric(label='Condo Price Change (%)', value="{:.2f}%".format(pct_change),
                   delta='{:.2f} % Points MoM'.format(pct_change - mom))
 
     with c:
-        pct_change = get_pct_change(th_, 'TH_price')
-        num = th_.TH_price.iloc[-5] - th_.TH_price.head(1).values[0]
-        den = th_.TH_price.head(1).values[0]
+        pct_change = get_pct_change(th, 'TH_price')
+        num = th.TH_price.iloc[-5] - th.TH_price.head(1).values[0]
+        den = th.TH_price.head(1).values[0]
         mom = np.round(((num / den) * 100), 2)
         st.metric(label='Townhouse Price Change (%)', value="{:.2f}%".format(pct_change),
                   delta='{:.2f} % Points MoM'.format(pct_change - mom))
 
     with d:
-        pct_change = get_pct_change(sfh_, 'SFH_price')
-        num = sfh_.SFH_price.iloc[-5] - sfh_.SFH_price.head(1).values[0]
-        den = sfh_.SFH_price.head(1).values[0]
+        pct_change = get_pct_change(sfh, 'SFH_price')
+        num = sfh.SFH_price.iloc[-5] - sfh.SFH_price.head(1).values[0]
+        den = sfh.SFH_price.head(1).values[0]
         mom = np.round(((num / den) * 100), 2)
         st.metric(label='Single Family Home Price Change (%)', value="{:.2f}%".format(pct_change),
                   delta='{:.2f} % Points MoM'.format(pct_change - mom))
@@ -187,7 +190,7 @@ with st.container() as charts:
         cond_price = (
             Line(init_opts=opts.InitOpts())
                 .add_xaxis(date_list)
-                .add_yaxis("Condos", cond_.COND_price.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
+                .add_yaxis("Condos", cond.COND_price.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
                 .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
@@ -204,7 +207,7 @@ with st.container() as charts:
         cond_count = (
             Line(init_opts=opts.InitOpts())
                 .add_xaxis(date_list)
-                .add_yaxis("Condos", cond_.COND_count.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
+                .add_yaxis("Condos", cond.COND_count.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
                 .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
@@ -221,7 +224,7 @@ with st.container() as charts:
         th_price = (
             Line(init_opts=opts.InitOpts())
                 .add_xaxis(date_list)
-                .add_yaxis("Townhouses", th_.TH_price.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
+                .add_yaxis("Townhouses", th.TH_price.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
                 .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
@@ -238,7 +241,7 @@ with st.container() as charts:
         th_count = (
             Line(init_opts=opts.InitOpts())
                 .add_xaxis(date_list)
-                .add_yaxis("Townhouses", th_.TH_count.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
+                .add_yaxis("Townhouses", th.TH_count.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
                 .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
@@ -256,7 +259,7 @@ with st.container() as charts:
         sfh_price = (
             Line(init_opts=opts.InitOpts())
                 .add_xaxis(date_list)
-                .add_yaxis("Single Family", sfh_.SFH_price.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
+                .add_yaxis("Single Family", sfh.SFH_price.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
                 .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
@@ -273,7 +276,7 @@ with st.container() as charts:
         sfh_count = (
             Line(init_opts=opts.InitOpts())
                 .add_xaxis(date_list)
-                .add_yaxis("Single Family", sfh_.SFH_count.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
+                .add_yaxis("Single Family", sfh.SFH_count.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
                 .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
