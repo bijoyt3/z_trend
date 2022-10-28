@@ -60,7 +60,7 @@ th = resample('TOWNHOUSE', 'TH')
 sfh = resample('SINGLE_FAMILY', 'SFH')
 
 # Streamlit Page Starts Here
-st.set_page_config(layout='wide')
+st.set_page_config(layout='wide', initial_sidebar_state='collapsed')
 st.title("🏠 Zillow Pricing Trends Dashboard (June 2022 - Present) 🏠")
 st.caption("Brought to you by BJT Studios")
 with st.sidebar:
@@ -84,6 +84,8 @@ with st.sidebar:
     
     This data is refreshed daily but aggregated weekly to illustrate macro trends in the market. Collection of 
     housing data began in mid-June 2022.
+    
+    Close this sidebar by clicking the X in the top right corner for optimal user experience. 
 
     """)
 st.info("Data Last Updated: {}".format(max(master.LastUpdated).strftime('%m/%d/%y')), icon="ℹ️")
