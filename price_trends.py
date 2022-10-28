@@ -17,18 +17,25 @@ def get_pct_change(df, col_name):
     return change_
 
 
-def resample(df: pd.DataFrame, name: str):
-    df_ = df.resample('W', on='LastUpdated') \
-        .agg({'ListedPrice': 'mean', 'zpid': 'nunique'}) \
-        .astype(int) \
+def resample(asset_type: str, abbrev: str):
+    resampled = master[master['HomeType']==asset_type]\
+        .resample('W', on='LastUpdated')\
+        .agg({'ListedPrice': 'mean', 'zpid': 'nunique'})\
+        .astype(int)\
         .reset_index() \
-        .rename(columns={'ListedPrice': '{}_price'.format(name), 'zpid': '{}_count'.format(name)})
+        .rename(columns={'ListedPrice': '{}_price'.format(abbrev), 'zpid': '{}_count'.format(abbrev)})
 
-    return df_
+    # df_ = df.resample('W', on='LastUpdated') \
+    #     .agg({'ListedPrice': 'mean', 'zpid': 'nunique'}) \
+    #     .astype(int) \
+    #     .reset_index() \
+    #     .rename(columns={'ListedPrice': '{}_price'.format(name), 'zpid': '{}_count'.format(name)})
+
+    return resampled
 
 
-def resample_fred(series_id: str, sample: str, start: str):
-    df = fred.get_series(series_id=series_id, observation_start=start)
+def resample_fred(series_id: str, sample: str, start_dt: str):
+    df = fred.get_series(series_id=series_id, observation_start=start_dt)
     df_ = pd.DataFrame(df)\
         .reset_index()\
         .rename(columns={'index': 'Date', 0: 'Rate'})\
@@ -39,10 +46,6 @@ def resample_fred(series_id: str, sample: str, start: str):
 
     return df_
 
-
-# db = 'listings_master.db'
-# conn = sqlite3.connect(db)
-# master = pd.read_sql('select * from "{}"'.format(db), conn)
 
 start = time.time()
 
@@ -60,12 +63,14 @@ master = pd.read_sql('select * from "{}"'.format(db), conn)
 master['LastUpdated'] = pd.to_datetime(master['LastUpdated'])
 master = master.sort_values(by='LastUpdated')
 
-apt = master.query("HomeType == 'APARTMENT'")
+apt = resample('APARTMENT', 'APT')
+
+# apt = master.query("HomeType == 'APARTMENT'")
 cond = master.query("HomeType == 'CONDO'")
 th = master.query("HomeType == 'TOWNHOUSE'")
 sfh = master.query("HomeType == 'SINGLE_FAMILY'")
 
-apt_ = resample(apt, 'APT')
+# apt_ = resample(apt, 'APT')
 cond_ = resample(cond, 'COND')
 th_ = resample(th, 'TH')
 sfh_ = resample(sfh, 'SFH')
@@ -93,8 +98,8 @@ with st.sidebar:
     + 10 Year Treasury Yield: https://fred.stlouisfed.org/series/DGS10
     + Federal Funds Rate: https://fred.stlouisfed.org/series/FEDFUNDS
     
-    This data is refreshed daily but aggregated weekly to illustrate macro trends in the market. Housing data was 
-    initially collected in mid June 2022.
+    This data is refreshed daily but aggregated weekly to illustrate macro trends in the market. Collection of 
+    housing data began in mid-June 2022.
 
     """)
 st.info("Data Last Updated: {}".format(max(th.LastUpdated).strftime('%m/%d/%y')), icon="ℹ️")
@@ -105,17 +110,17 @@ date_list = [d.strftime('%m/%d/%y') for d in th_.LastUpdated.tolist()]
 fred_key = st.secrets['FRED_API_KEY']['key']
 fred = fredapi.Fred(api_key=fred_key)
 
-treasury_resample = resample_fred(series_id='DGS10', sample='W', start='2022-06-12')
-fixedmortgage_resample = resample_fred(series_id='MORTGAGE30US', sample='W', start='2022-06-12')
-fedfunds_resample = resample_fred(series_id='FEDFUNDS', sample='M', start='2022-05-12')
+treasury_resample = resample_fred(series_id='DGS10', sample='W', start_dt='2022-06-12')
+fixedmortgage_resample = resample_fred(series_id='MORTGAGE30US', sample='W', start_dt='2022-06-12')
+fedfunds_resample = resample_fred(series_id='FEDFUNDS', sample='M', start_dt='2022-05-12')
 
 
 with st.container() as metrics:
     a, b, c, d = st.columns(4)
     with a:
-        pct_change = get_pct_change(apt_, 'APT_price')
-        num = apt_.APT_price.iloc[-5] - apt_.APT_price.head(1).values[0]
-        den = apt_.APT_price.head(1).values[0]
+        pct_change = get_pct_change(apt, 'APT_price')
+        num = apt.APT_price.iloc[-5] - apt.APT_price.head(1).values[0]
+        den = apt.APT_price.head(1).values[0]
         mom = np.round(((num / den) * 100), 2)
 
         st.metric(label='Apartment Price Change (%)', value="{:.2f}%".format(pct_change),
@@ -151,7 +156,7 @@ with st.container() as charts:
         apt_price = (
             Line(init_opts=opts.InitOpts())
                 .add_xaxis(date_list)
-                .add_yaxis("Apartments", apt_.APT_price.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
+                .add_yaxis("Apartments", apt.APT_price.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
                 .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
@@ -166,7 +171,7 @@ with st.container() as charts:
         apt_count = (
             Line(init_opts=opts.InitOpts())
                 .add_xaxis(date_list)
-                .add_yaxis("Apartments", apt_.APT_count.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
+                .add_yaxis("Apartments", apt.APT_count.tolist(), linestyle_opts=opts.LineStyleOpts(width=2))
                 .extend_axis(yaxis=opts.AxisOpts(type_="value", position="right", min_=4))
                 .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), yaxis_index=1,
                            linestyle_opts=opts.LineStyleOpts(type_='dotted'))
@@ -284,7 +289,7 @@ with st.container() as charts:
 with st.container() as rate_container:
     rate1, rate2, rate3 = st.columns(3)
     with rate1:
-        fed_date = [d.strftime('%b, %y') for d in fedfunds_resample.Date.tolist()]
+        fed_date = [d.strftime('%b %y') for d in fedfunds_resample.Date.tolist()]
         fed_funds = (
             Line(init_opts=opts.InitOpts())
                 .add_xaxis(fed_date)
