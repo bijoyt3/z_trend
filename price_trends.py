@@ -93,7 +93,8 @@ with st.sidebar:
     + 10 Year Treasury Yield: https://fred.stlouisfed.org/series/DGS10
     + Federal Funds Rate: https://fred.stlouisfed.org/series/FEDFUNDS
     
-    This data is refreshed daily but aggregated weekly to illustrate macro trends in the market. The data goes back to mid June 2022.
+    This data is refreshed daily but aggregated weekly to illustrate macro trends in the market. Housing data was 
+    initially collected in mid June 2022.
 
     """)
 st.info("Data Last Updated: {}".format(max(th.LastUpdated).strftime('%m/%d/%y')), icon="ℹ️")
@@ -107,19 +108,6 @@ fred = fredapi.Fred(api_key=fred_key)
 treasury_resample = resample_fred(series_id='DGS10', sample='W', start='2022-06-12')
 fixedmortgage_resample = resample_fred(series_id='MORTGAGE30US', sample='W', start='2022-06-12')
 fedfunds_resample = resample_fred(series_id='FEDFUNDS', sample='M', start='2022-05-12')
-
-# nat_mort_rate = [5.78, 5.81, 5.70, 5.30, 5.51, 5.54, 5.30, 4.99, 5.22, 5.13, 5.55,
-#                  5.66, 5.89, 6.02, 6.29, 6.70, 6.66, 6.92, 6.94]
-#
-# ten_yr = pd.read_excel('10yr_rates.xlsx', parse_dates=['Date'])
-# ten_yr_ = ten_yr.resample('W', on='Date')\
-#     .agg({'Rate': 'mean'})\
-#     .reset_index()
-#
-# ff = pd.read_excel('FF.xlsx', parse_dates=['Date'])
-# ff_ = ff.resample('W', on='Date')\
-#     .agg({'Fed_Rate': 'mean'})\
-#     .reset_index()
 
 
 with st.container() as metrics:
@@ -296,9 +284,10 @@ with st.container() as charts:
 with st.container() as rate_container:
     rate1, rate2, rate3 = st.columns(3)
     with rate1:
+        fed_date = [d.strftime('%m/%d/%y') for d in fedfunds_resample.Date.tolist()]
         fed_funds = (
             Line(init_opts=opts.InitOpts())
-                .add_xaxis(fedfunds_resample.Date.tolist())
+                .add_xaxis(fed_date)
                 .add_yaxis("Federal Funds Rate", fedfunds_resample.Rate.tolist(), linestyle_opts=opts.LineStyleOpts(width=2),
                            color='#367E18')
                 .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
@@ -311,9 +300,10 @@ with st.container() as rate_container:
         st_pyecharts(fed_funds, key='fed_funds')
 
     with rate2:
+        treas_date = [d.strftime('%m/%d/%y') for d in treasury_resample.Date.tolist()]
         treasury = (
             Line(init_opts=opts.InitOpts())
-                .add_xaxis(treasury_resample.Date.tolist())
+                .add_xaxis(treas_date)
                 .add_yaxis("10 Year Treasury Yield", treasury_resample.Rate.tolist(), linestyle_opts=opts.LineStyleOpts(width=2),
                            color='#749F82')
                 .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
@@ -327,9 +317,10 @@ with st.container() as rate_container:
         st_pyecharts(treasury, key='treasury')
 
     with rate3:
+        mort_date = [d.strftime('%m/%d/%y') for d in fixedmortgage_resample.Date.tolist()]
         thirty_year = (
             Line(init_opts=opts.InitOpts())
-                .add_xaxis(fixedmortgage_resample.Date.tolist())
+                .add_xaxis(mort_date)
                 .add_yaxis("30Yr Mortgage Rate", fixedmortgage_resample.Rate.tolist(), linestyle_opts=opts.LineStyleOpts(width=2), color='#425F57')
                 .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
                 .set_global_opts(
