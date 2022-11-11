@@ -16,11 +16,17 @@ def get_pct_change(df, col_name):
 
 def resample(asset_type: str, abbrev: str):
     filtered = master.query("HomeType == '{}'".format(asset_type))
-    resampled = filtered.resample('W', on='LastUpdated')\
+    resampled = filtered.groupby(filtered.index//7)\
         .agg({'ListedPrice': 'mean', 'zpid': 'nunique'})\
         .astype(int)\
         .reset_index() \
         .rename(columns={'ListedPrice': '{}_price'.format(abbrev), 'zpid': '{}_count'.format(abbrev)})
+
+    # resampled = filtered.resample('W', on='LastUpdated')\
+    #     .agg({'ListedPrice': 'mean', 'zpid': 'nunique'})\
+    #     .astype(int)\
+    #     .reset_index() \
+    #     .rename(columns={'ListedPrice': '{}_price'.format(abbrev), 'zpid': '{}_count'.format(abbrev)})
 
     return resampled
 
@@ -51,7 +57,7 @@ s3_client.download_file('listingszillow2022', 'listings_master.db', 'listings_ma
 db = 'listings_master.db'
 conn = sqlite3.connect(db)
 
-master = pd.read_sql('select distinct ListedPrice, HomeType, zpid, LastUpdated from "{}" where LastUpdated >= "06/19/2022"'.format(db), conn)
+master = pd.read_sql('select distinct ListedPrice, HomeType, zpid, LastUpdated from "{}"'.format(db), conn)
 master['LastUpdated'] = pd.to_datetime(master['LastUpdated'])
 master = master.sort_values(by='LastUpdated')
 
