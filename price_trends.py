@@ -100,7 +100,7 @@ with ex2:
 with ex3:
     gob = GridOptionsBuilder.from_dataframe(master)
     gob.configure_side_bar()
-    AgGrid(master, gridOptions=gob.build(), enable_enterprise_modules=True, theme='.streamlit')
+    AgGrid(master, gridOptions=gob.build(), enable_enterprise_modules=True)
 
 date_list = [d.strftime('%m/%d/%y') for d in th.LastUpdated.tolist()]
 
