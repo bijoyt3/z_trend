@@ -25,6 +25,7 @@ def resample(asset_type: str, abbrev: str):
     return resampled
 
 
+@st.experimental_memo(ttl=86400)
 def resample_fred(series_id: str, sample: str, start_dt: str):
     df = fred.get_series(series_id=series_id, observation_start=start_dt)
     df_ = pd.DataFrame(df)\
@@ -50,7 +51,7 @@ s3_client.download_file('listingszillow2022', 'listings_master.db', 'listings_ma
 db = 'listings_master.db'
 conn = sqlite3.connect(db)
 
-master = pd.read_sql('select * from "{}"'.format(db), conn)
+master = pd.read_sql('select ListedPrice, HomeType, zpid, LastUpdated from "{}"'.format(db), conn)
 master['LastUpdated'] = pd.to_datetime(master['LastUpdated'])
 master = master.sort_values(by='LastUpdated')
 
