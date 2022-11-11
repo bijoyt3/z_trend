@@ -90,8 +90,13 @@ with st.sidebar:
 
     """)
 st.info("Data Last Updated: {}".format(max(master.LastUpdated).strftime('%m/%d/%y')), icon="ℹ️")
-st.dataframe(apt)
-st.dataframe(cond)
+ex1, ex2, ex3 = st.columns(3)
+with ex1:
+    st.dataframe(apt)
+with ex2:
+    st.dataframe(cond)
+with ex3:
+    st.dataframe(master)
 date_list = [d.strftime('%m/%d/%y') for d in th.LastUpdated.tolist()]
 
 fred_key = st.secrets['FRED_API_KEY']['key']
