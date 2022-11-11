@@ -7,6 +7,8 @@ from pyecharts.charts import Line
 from streamlit_echarts import st_pyecharts
 import time
 import fredapi
+from st_aggrid import AgGrid
+from st_aggrid.grid_options_builder import GridOptionsBuilder
 
 
 def get_pct_change(df, col_name):
@@ -96,7 +98,10 @@ with ex1:
 with ex2:
     st.dataframe(cond)
 with ex3:
-    st.dataframe(master)
+    gob = GridOptionsBuilder.from_dataframe(master)
+    gob.configure_side_bar()
+    AgGrid(master, gridOptions=gob.build(), enable_enterprise_modules=True, theme='.streamlit')
+
 date_list = [d.strftime('%m/%d/%y') for d in th.LastUpdated.tolist()]
 
 fred_key = st.secrets['FRED_API_KEY']['key']
