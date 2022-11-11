@@ -16,17 +16,12 @@ def get_pct_change(df, col_name):
 
 def resample(asset_type: str, abbrev: str):
     filtered = master.query("HomeType == '{}'".format(asset_type))
-    resampled = filtered.groupby(filtered.index//7)\
+
+    resampled = filtered.resample('W', on='LastUpdated')\
         .agg({'ListedPrice': 'mean', 'zpid': 'nunique'})\
         .astype(int)\
         .reset_index() \
         .rename(columns={'ListedPrice': '{}_price'.format(abbrev), 'zpid': '{}_count'.format(abbrev)})
-
-    # resampled = filtered.resample('W', on='LastUpdated')\
-    #     .agg({'ListedPrice': 'mean', 'zpid': 'nunique'})\
-    #     .astype(int)\
-    #     .reset_index() \
-    #     .rename(columns={'ListedPrice': '{}_price'.format(abbrev), 'zpid': '{}_count'.format(abbrev)})
 
     return resampled
 
