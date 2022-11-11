@@ -7,8 +7,6 @@ from pyecharts.charts import Line
 from streamlit_echarts import st_pyecharts
 import time
 import fredapi
-from st_aggrid import AgGrid
-from st_aggrid.grid_options_builder import GridOptionsBuilder
 
 
 def get_pct_change(df, col_name):
@@ -92,15 +90,6 @@ with st.sidebar:
 
     """)
 st.info("Data Last Updated: {}".format(max(master.LastUpdated).strftime('%m/%d/%y')), icon="ℹ️")
-ex1, ex2, ex3 = st.columns(3)
-with ex1:
-    st.dataframe(apt)
-with ex2:
-    st.dataframe(cond)
-with ex3:
-    gob = GridOptionsBuilder.from_dataframe(master)
-    gob.configure_side_bar()
-    AgGrid(master, gridOptions=gob.build(), enable_enterprise_modules=True)
 
 date_list = [d.strftime('%m/%d/%y') for d in th.LastUpdated.tolist()]
 
