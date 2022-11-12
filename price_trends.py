@@ -32,7 +32,7 @@ def resample_fred(series_id: str, sample: str, start_dt: str):
     df_ = pd.DataFrame(df)\
         .reset_index()\
         .rename(columns={'index': 'Date', 0: 'Rate'})\
-        .resample(sample, on='Date')\
+        .resample(sample, on='Date', label='left')\
         .agg({'Rate': 'mean'})\
         .round(2)\
         .reset_index()
