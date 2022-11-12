@@ -18,7 +18,7 @@ def resample(asset_type: str, abbrev: str):
     filtered = master.query("HomeType == '{}'".format(asset_type))
 
     resampled = filtered.resample('W', label='left', on='LastUpdated')\
-        .agg({'ListedPrice': 'mean', 'zpid': 'nunique'})\
+        .agg({'ListedPrice': ['nunique', 'mean'], 'zpid': 'nunique'})\
         .astype(int)\
         .reset_index() \
         .rename(columns={'ListedPrice': '{}_price'.format(abbrev), 'zpid': '{}_count'.format(abbrev)})
