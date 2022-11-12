@@ -22,6 +22,7 @@ def resample(asset_type: str, abbrev: str):
         .reset_index()\
         .resample('W', on='LastUpdated').agg({'ListedPrice':'mean', 'zpid':'nunique'})\
         .astype(int)\
+        .reset_index()\
         .rename(columns={'ListedPrice': '{}_price'.format(abbrev), 'zpid': '{}_count'.format(abbrev)})
 
     return resampled
